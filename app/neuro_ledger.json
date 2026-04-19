@@ -1,0 +1,397 @@
+{
+  "address": "BtyM5xCXDSAUupX2niKU5jQ46xtcnLDbU99KrpDEZ625",
+  "metadata": {
+    "name": "neuro_ledger",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "NeuroLedger: ML predictions with ZK proofs on Solana"
+  },
+  "instructions": [
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "docs": [
+            "The authority that initializes the config"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "reward_mint"
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "config",
+          "docs": [
+            "Config account to be created"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  101,
+                  117,
+                  114,
+                  111,
+                  95,
+                  108,
+                  101,
+                  100,
+                  103,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "initial_reward_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "verify_and_reward",
+      "discriminator": [
+        117,
+        9,
+        27,
+        229,
+        89,
+        144,
+        152,
+        183
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "docs": [
+            "The user submitting the prediction"
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "docs": [
+            "Config account"
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  110,
+                  101,
+                  117,
+                  114,
+                  111,
+                  95,
+                  108,
+                  101,
+                  100,
+                  103,
+                  101,
+                  114,
+                  95,
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "prediction",
+          "docs": [
+            "User prediction account (PDA)"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  95,
+                  112,
+                  114,
+                  101,
+                  100,
+                  105,
+                  99,
+                  116,
+                  105,
+                  111,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "System program"
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "proof",
+          "type": "bytes"
+        },
+        {
+          "name": "public_inputs",
+          "type": "bytes"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "UserPrediction",
+      "discriminator": [
+        67,
+        209,
+        13,
+        47,
+        250,
+        122,
+        175,
+        20
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidProof",
+      "msg": "Invalid proof verification"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidVerificationKey",
+      "msg": "Invalid verification key"
+    },
+    {
+      "code": 6002,
+      "name": "Unauthorized",
+      "msg": "Unauthorized: Only authority can perform this action"
+    },
+    {
+      "code": 6003,
+      "name": "AlreadyRewarded",
+      "msg": "Prediction already rewarded"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidSigner",
+      "msg": "Invalid signer"
+    },
+    {
+      "code": 6005,
+      "name": "InsufficientTreasuryBalance",
+      "msg": "Insufficient treasury balance"
+    },
+    {
+      "code": 6006,
+      "name": "AccountOwnershipCheckFailed",
+      "msg": "Account ownership check failed"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidAccountType",
+      "msg": "Invalid account type"
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "docs": [
+        "Global state for NeuroLedger program"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Authority that can update the verification key"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "verification_key_hash",
+            "docs": [
+              "Hash of the current verification key (for simple proof validation)"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "total_verified",
+            "docs": [
+              "Total number of verified predictions"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "reward_mint",
+            "docs": [
+              "SPL Token mint for rewards"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "Treasury token account"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "reward_amount",
+            "docs": [
+              "Reward amount per verified prediction (in token units)"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump for PDA derivation"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserPrediction",
+      "docs": [
+        "User prediction account that tracks verified predictions"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "docs": [
+              "The user who made the prediction"
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "prediction_hash",
+            "docs": [
+              "Hash of the prediction data"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "proof_hash",
+            "docs": [
+              "Hash of the proof"
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Timestamp of prediction"
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "rewarded",
+            "docs": [
+              "Whether this prediction has been rewarded"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "Bump for PDA derivation"
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
