@@ -40,14 +40,36 @@ fi
 
 cd "$ROOT_DIR"
 
+echo "Checking if ports 8899 and 9900 are available..."
+if lsof -i :9900 >/dev/null 2>&1; then
+  echo "Port 9900 is already in use. Killing existing Solana validator..."
+  pkill -f solana-test-validator || true
+  sleep 1
+fi
+
+if lsof -i :8899 >/dev/null 2>&1; then
+  echo "Port 8899 is already in use. Killing existing Solana validator..."
+  pkill -f solana-test-validator || true
+  sleep 1
+fi
+
 echo "Starting local Solana validator..."
-solana-test-validator --reset > "$ROOT_DIR/solana-test-validator.log" 2>&1 &
+solana-test-validator --reset --faucet-port 9901 > "$ROOT_DIR/solana-test-validator.log" 2>&1 &
 VALIDATOR_PID=$!
 echo "Solana validator started with PID $VALIDATOR_PID"
 echo "Logs: $ROOT_DIR/solana-test-validator.log"
 
-echo "Waiting 3 seconds for validator startup..."
-sleep 3
+echo "Waiting 5 seconds for validator to fully start..."
+sleep 5
+
+# Verify validator is running
+if ! ps -p $VALIDATOR_PID > /dev/null; then
+  echo "ERROR: Solana validator failed to start. Check logs:"
+  cat "$ROOT_DIR/solana-test-validator.log"
+  exit 1
+fi
+
+echo "Validator is running. RPC at http://127.0.0.1:8899"
 
 cd "$APP_DIR"
 echo "Installing frontend dependencies (if needed)..."
