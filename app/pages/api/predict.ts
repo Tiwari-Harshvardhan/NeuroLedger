@@ -127,25 +127,25 @@ export default async function handler(
           }
         }, 25000);
 
-        const pyshell = new PythonShell(pythonScript, options);
+        const pyshell = new PythonShell(pythonScript, options) as any;
         let result = '';
         let errorOutput = '';
 
-        pyshell.on('message', (message) => {
+        pyshell.on('message', (message: string) => {
           if (!isResponseSent) {
             console.log('[predict API] ✓ Message:', message.substring(0, 80));
             result = message;
           }
         });
 
-        pyshell.on('stderr', (stderr) => {
+        pyshell.on('stderr', (stderr: string) => {
           if (!isResponseSent) {
             console.log('[predict API] stderr:', stderr.substring(0, 80));
             errorOutput += stderr;
           }
         });
 
-        pyshell.on('error', (err) => {
+        pyshell.on('error', (err: any) => {
           console.error('[predict API] ✗ Process error:', err);
           if (!isResponseSent) {
             isResponseSent = true;
@@ -157,7 +157,7 @@ export default async function handler(
           }
         });
 
-        pyshell.on('close', (code) => {
+        pyshell.on('close', (code: number) => {
           console.log('[predict API] Closed with code:', code);
           if (!isResponseSent) {
             isResponseSent = true;

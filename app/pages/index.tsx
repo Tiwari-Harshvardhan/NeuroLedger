@@ -1,11 +1,28 @@
 import Head from 'next/head';
-import WalletConnection from '../components/WalletConnection';
-import PredictionDashboard from '../components/PredictionDashboard';
+import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 
-console.log('[index.tsx] Server component module loaded');
+console.log('[index.tsx] Module initialization');
+
+const WalletConnectionDynamic = dynamic(
+  () => import('../components/WalletConnection'),
+  { ssr: false }
+);
+
+const PredictionDashboardDynamic = dynamic(
+  () => import('../components/PredictionDashboard'),
+  { ssr: false }
+);
 
 export default function Home() {
-  console.log('[index.tsx] Home page component rendering');
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    console.log('[index.tsx] Home component mounted');
+    setMounted(true);
+  }, []);
+
+  console.log(`[index.tsx] Rendering Home component. Mounted: ${mounted}`);
 
   return (
     <>
@@ -22,7 +39,7 @@ export default function Home() {
               <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
                 NeuroLedger
               </h1>
-              <WalletConnection />
+              <WalletConnectionDynamic />
             </div>
           </div>
         </nav>
@@ -40,7 +57,15 @@ export default function Home() {
             </p>
           </div>
 
-          <PredictionDashboard />
+          <div className="min-h-[400px]">
+            {mounted ? (
+              <PredictionDashboardDynamic />
+            ) : (
+              <div className="flex items-center justify-center p-20 text-slate-500">
+                Initializing dashboard...
+              </div>
+            )}
+          </div>
         </div>
 
         <footer className="bg-slate-900 border-t border-slate-700 mt-20">

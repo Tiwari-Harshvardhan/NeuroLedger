@@ -9,6 +9,10 @@ const VerifyAndRewardComponent = () => {
     if (!program) return;
 
     const user = program.provider.publicKey;
+    if (!user) {
+      console.error('No wallet connected');
+      return;
+    }
 
     // Derive config PDA
     const [configPda] = PublicKey.findProgramAddressSync(
@@ -23,7 +27,7 @@ const VerifyAndRewardComponent = () => {
     );
 
     try {
-      const tx = await program.methods
+      const tx = await (program as any).methods
         .verifyAndReward(proof, publicInputs)
         .accounts({
           user: user,

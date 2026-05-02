@@ -142,7 +142,7 @@ export default function PredictionForm({ onStatusChange }: PredictionFormProps) 
       );
 
       // Call the verifyAndReward instruction
-      const tx = await program.methods
+      const tx = await (program as any).methods
         .verifyAndReward(proof, publicInputs)
         .accounts({
           user: publicKey,
@@ -151,6 +151,7 @@ export default function PredictionForm({ onStatusChange }: PredictionFormProps) 
           systemProgram: SystemProgram.programId,
         })
         .rpc();
+2
 
         
       onStatusChange({

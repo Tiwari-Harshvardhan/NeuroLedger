@@ -1,24 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import PredictionForm from './PredictionForm';
 import TransactionStatus from './TransactionStatus';
 
-if (typeof window !== 'undefined') {
-  console.log('[PredictionDashboard] Module loading in browser');
-}
-
 export default function PredictionDashboard() {
-  console.log('[PredictionDashboard] Component rendering');
+  const [mounted, setMounted] = useState(false);
   const { connected } = useWallet();
-  console.log('[PredictionDashboard] Wallet connected:', connected);
   
+  useEffect(() => {
+    console.log('[PredictionDashboard] Component mounted');
+    setMounted(true);
+  }, []);
+
+  console.log(`[PredictionDashboard] Rendering. Mounted: ${mounted}, Connected: ${connected}`);
+
   const [transactionStatus, setTransactionStatus] = useState<{
-    status: 'loading' | 'success' | 'error';
+    status: 'idle' | 'predicting' | 'generating_proof' | 'submitting' | 'success' | 'error' | 'loading';
     message: string;
     signature?: string;
   } | null>(null);
+
+  if (!mounted) {
+    console.log('[PredictionDashboard] Skipping render during SSR');
+    return <div className="p-8 text-center text-slate-500">Loading dashboard...</div>;
+  }
 
   if (!connected) {
     console.log('[PredictionDashboard] Wallet not connected, showing prompt');
@@ -34,7 +41,7 @@ export default function PredictionDashboard() {
     );
   }
 
-  console.log('[PredictionDashboard] Wallet connected, rendering dashboard');
+  console.log('[PredictionDashboard] Wallet connected, rendering dashboard content');
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -2,7 +2,7 @@
 
 interface TransactionStatusProps {
   status: {
-    status: 'loading' | 'success' | 'error';
+    status: 'idle' | 'predicting' | 'generating_proof' | 'submitting' | 'success' | 'error' | 'loading';
     message: string;
     signature?: string;
   };
@@ -11,7 +11,10 @@ interface TransactionStatusProps {
 export default function TransactionStatus({ status }: TransactionStatusProps) {
   const isSuccess = status.status === 'success';
   const isError = status.status === 'error';
-  const isLoading = status.status === 'loading';
+  const isLoading = ['loading', 'predicting', 'generating_proof', 'submitting'].includes(status.status);
+  const isIdle = status.status === 'idle';
+
+  if (isIdle) return null;
 
   return (
     <div className={`border rounded-xl p-8 ${
@@ -20,11 +23,9 @@ export default function TransactionStatus({ status }: TransactionStatusProps) {
       'bg-blue-900/20 border-blue-600/50'
     }`}>
       <div className="flex items-start gap-4">
-        <div className={`text-3xl ${
-          isSuccess ? '✅' :
-          isError ? '❌' :
-          '⏳'
-        }`} />
+        <div className="text-3xl">
+          {isSuccess ? '✅' : isError ? '❌' : '⏳'}
+        </div>
         <div className="flex-1">
           <h4 className={`font-semibold text-lg mb-2 ${
             isSuccess ? 'text-green-400' :
