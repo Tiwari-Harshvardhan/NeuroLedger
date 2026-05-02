@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
-  // Explicitly set the root to the workspace root to avoid detection issues
-  experimental: {
-    turbo: {
-      root: '..',
-    },
+  turbopack: {
+    root: path.resolve(__dirname),
   },
 }
 
