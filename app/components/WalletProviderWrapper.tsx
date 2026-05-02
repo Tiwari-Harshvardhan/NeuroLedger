@@ -6,6 +6,7 @@ import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
+import { LocalWalletAdapter } from '../lib/LocalWalletAdapter';
 
 console.log('[WalletProviderWrapper] Client component module loaded');
 
@@ -31,14 +32,24 @@ export default function WalletProviderWrapper({ children }: WalletProviderWrappe
   const wallets = useMemo(() => {
     console.log('[WalletProviderWrapper] Creating wallet adapters');
     try {
-      const adapters = [new PhantomWalletAdapter()];
+      const adapters = [];
+      
+      // Use local wallet for development, Phantom for production
+      if (isLocalhost) {
+        console.log('[WalletProviderWrapper] Using LocalWalletAdapter for development');
+        adapters.push(new LocalWalletAdapter());
+      } else {
+        console.log('[WalletProviderWrapper] Using PhantomWalletAdapter for production');
+        adapters.push(new PhantomWalletAdapter());
+      }
+      
       console.log('[WalletProviderWrapper] Wallet adapters created successfully');
       return adapters;
     } catch (error) {
       console.error('[WalletProviderWrapper] Error creating wallet adapters:', error);
       return [];
     }
-  }, []);
+  }, [isLocalhost]);
 
   console.log('[WalletProviderWrapper] Rendering providers');
 
