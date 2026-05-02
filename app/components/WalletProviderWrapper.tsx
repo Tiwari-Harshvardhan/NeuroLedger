@@ -16,11 +16,17 @@ interface WalletProviderWrapperProps {
 export default function WalletProviderWrapper({ children }: WalletProviderWrapperProps) {
   console.log('[WalletProviderWrapper] Component rendering');
 
-  const network = WalletAdapterNetwork.Devnet;
+  // Use localhost for local development, Devnet for production
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
   const endpoint = useMemo(() => {
     console.log('[WalletProviderWrapper] Computing endpoint');
-    return clusterApiUrl(network);
-  }, [network]);
+    if (isLocalhost) {
+      console.log('[WalletProviderWrapper] Using local validator endpoint');
+      return 'http://127.0.0.1:8899';
+    }
+    console.log('[WalletProviderWrapper] Using Devnet endpoint');
+    return clusterApiUrl(WalletAdapterNetwork.Devnet);
+  }, [isLocalhost]);
 
   const wallets = useMemo(() => {
     console.log('[WalletProviderWrapper] Creating wallet adapters');
